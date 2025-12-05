@@ -79,7 +79,8 @@ read_csv_auto <- function(path) {
   df
 }
 
-# Unimos los data.frames con distinto set de columnas, rellenando faltantes con NA)
+# Unimos los data.frames con distinto set de columnas, rellenando faltantes
+# con NA)
 rbind_union <- function(dflist) {
   all_names <- unique(unlist(lapply(dflist, names)))
   aligned <- lapply(dflist, function(x) {
