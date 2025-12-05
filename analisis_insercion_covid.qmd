@@ -284,7 +284,7 @@ La Tabla 1 resume las características sociodemográficas y académicas de los e
 
 ```{r}
 #| label: tabla-descriptiva
-#| tbl-cap: "Tabla 1. Perfil de los egresados por periodo (Pre vs Post COVID)"
+#| tbl-cap: "Perfil de los egresados por periodo (Pre vs Post COVID)"
 #| echo: false
 #| message: false
 #| warning: false
