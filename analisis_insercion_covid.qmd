@@ -241,6 +241,44 @@ glimpse(datos_analisis)
 
 Objetivo: Validar que los grupos son comparables y observar tendencias "a simple vista"
 
+Antes de proceder al modelado econométrico, es fundamental caracterizar la muestra y verificar la comparabilidad entre las cohortes analizadas.
+
+```{r}
+#| label: preparacion-visual
+#| echo: false
+#| message: false
+
+library(tidyverse)
+library(gtsummary)
+library(gt)
+
+# CREACIÓN DE ETIQUETAS Y VARIABLES DE INTERVENCIÓN
+# Transformamos los códigos numéricos en factores legibles para tablas y gráficos
+
+datos_plot <- datos_analisis |> 
+  mutate(
+    # 1. Variable de Intervención (Corte en 2019-2020)
+    periodo_covid = factor(
+      if_else(anio == "2018-2019", "Pre-COVID", "Post-COVID"),
+      levels = c("Pre-COVID", "Post-COVID")
+    ),
+    
+    # 2. Etiquetas de Ramas (Mapping estricto)
+    rama_enseny = factor(GRUPO, 
+      levels = 1:10,
+      labels = c("Educación", "Artes y Hum.", "CC. Sociales", "Empresa/Derecho", 
+                 "CC. Naturales", "TIC", "Ingeniería", "Agri/Vet", 
+                 "Salud", "Servicios")
+    ),
+    
+    # 3. Etiqueta de Precariedad (Para visualización)
+    situacion_laboral = factor(
+      if_else(CalidadContrato == 1, "Jornada Parcial (Precaria)", "Jornada Completa"),
+      levels = c("Jornada Completa", "Jornada Parcial (Precaria)")
+    )
+  )
+```
+
 ## Caracterización de la Muestra
 - Uso de gtsummary para comparar variables demográficas y académicas (Rendimiento, Rama) entre el grupo Control (2018-19) y Tratamiento (2019-23).
 
