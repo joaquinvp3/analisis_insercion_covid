@@ -5,7 +5,7 @@ date: last-modified
 lang: es
 format: 
   pdf:
-    toc: false               # Índice de contenidos
+    toc: false              # Índice de contenidos
     number-sections: true   # Numeración 1.1, 1.2...
     colorlinks: true        # Enlaces clicables en color
     papersize: a4           # Tamaño papel estándar europeo
