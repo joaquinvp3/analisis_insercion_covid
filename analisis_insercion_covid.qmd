@@ -1,5 +1,5 @@
 ---
-title: "Impacto del Cambio Metodológico Post-COVID en la Inserción Laboral"
+title: "Impacto de la Adaptación Pedagógica COVID-19 en la Inserción Laboral de los Graduados Universitarios Andaluces"
 author: "Carlos Pérez, Daniel Limón, Joaquín Vidal"
 date: last-modified
 lang: es
