@@ -284,7 +284,49 @@ datos_plot <- datos_analisis |>
 
 - Test estadístico de diferencias entre grupos (Chi-cuadrado).
 
-## Análisis Exploratorio Visual:
+La Tabla 1 resume las características sociodemográficas y académicas de los egresados, segmentadas por el periodo de intervención. Se han aplicado tests de independencia ($\chi^2$) para evaluar diferencias significativas en la composición de los grupos.
+
+```{r}
+#| label: tabla-descriptiva
+#| tbl-cap: "Tabla 1. Perfil de los egresados por periodo (Pre vs Post COVID)"
+#| echo: false
+#| message: false
+#| warning: false
+
+library(kableExtra)
+
+datos_plot |> 
+  select(periodo_covid, rama_enseny, RENDIMIENTO, situacion_laboral) |> 
+  tbl_summary(
+    by = periodo_covid,
+    label = list(
+      rama_enseny ~ "Rama de Enseñanza",
+      RENDIMIENTO ~ "Rendimiento (Cuartiles)", 
+      situacion_laboral ~ "Calidad Inserción (Año 1)"
+    ),
+    statistic = all_categorical() ~ "{n} ({p}%)",
+    percent = "column"
+  ) |> 
+  add_p() |>       
+  add_overall() |> 
+  bold_labels() |> 
+  as_kable_extra(booktabs = TRUE) |> 
+  kable_styling(latex_options = c("hold_position", "scale_down"))
+```
+
+### Interpretación de los Descriptivos
+
+El análisis preliminar mostrado en la Tabla 1 revela tres hallazgos fundamentales que guían la estrategia de modelado posterior:
+
+1.  **Estabilidad en la Tasa de Precariedad Agregada:** A nivel global, no se observa una diferencia significativa ($p > 0.9$) en la calidad de la inserción entre los periodos. Tanto antes como después de la pandemia, aproximadamente el 64% de los graduados accedieron a una jornada completa en su primer año. Esto sugiere que, en términos macroscópicos, el mercado laboral andaluz mostró resiliencia ante el shock.
+
+2.  **Cambios Composicionales Significativos ($p < 0.001$):** Se detecta una variación estructural en la distribución por ramas de enseñanza. La cohorte Post-COVID presenta una ligera reducción en el peso relativo de ramas tradicionales como *Educación* (del 20% al 17%) y un incremento en ramas técnicas como *Ciencias Naturales*. Dado que la empleabilidad varía enormemente entre titulaciones, este cambio composicional justifica el uso de modelos multivariantes para controlar el "efecto rama" y evitar sesgos en la comparación.
+
+3.  **Homogeneidad en el Rendimiento:** Es destacable que no existen diferencias significativas en los cuartiles de rendimiento ($p = 0.2$). Esto descarta la hipótesis de una "inflación de notas" generalizada durante la pandemia que pudiera distorsionar la variable de capacidad académica.
+
+**Conclusión preliminar:** Aunque el indicador bruto de precariedad se mantiene estable, es necesario aislar el efecto de la intervención (COVID) de los cambios demográficos y estructurales mediante la regresión logística.
+
+## Análisis Exploratorio Visual
 - Gráfico de barras: Tasa de Precariedad (Jornada Parcial) por Rama de Enseñanza.
 
 - Evolución temporal: Línea de tendencia de la precariedad a lo largo de los 5 años (para ver si hubo un "shock" en 2020).
