@@ -289,6 +289,7 @@ La Tabla 1 resume las características sociodemográficas y académicas de los e
 #| message: false
 #| warning: false
 
+library(gtsummary)
 library(kableExtra)
 
 datos_plot |> 
@@ -326,6 +327,167 @@ El análisis preliminar mostrado en la Tabla 1 revela tres hallazgos fundamental
 - Gráfico de barras: Tasa de Precariedad (Jornada Parcial) por Rama de Enseñanza.
 
 - Evolución temporal: Línea de tendencia de la precariedad a lo largo de los 5 años (para ver si hubo un "shock" en 2020).
+
+Para complementar los estadísticos agregados y responder a la necesidad de una perspectiva longitudinal, se presentan dos visualizaciones clave.
+
+En primer lugar, la **Figura 1** desglosa la tasa de precariedad por rama de enseñanza. Esto permite identificar visualmente qué sectores estructurales (como Salud o Educación) arrastran las tasas más altas o bajas, ayudando a explicar los cambios composicionales detectados en la Tabla 1.
+
+```{r}
+#| label: grafico-barras-rama
+#| fig-cap: "Tasa de precariedad (Jornada Parcial) por Rama de Enseñanza"
+#| fig-height: 5
+#| echo: false
+
+datos_plot |> 
+  group_by(rama_enseny) |> 
+  summarise(
+    tasa_precariedad = mean(CalidadContrato, na.rm = TRUE),
+    n = n()
+  ) |> 
+  ggplot(aes(x = reorder(rama_enseny, tasa_precariedad), y = tasa_precariedad)) +
+  geom_col(fill = "#2C3E50", alpha = 0.8) +
+  geom_text(aes(label = scales::percent(tasa_precariedad, accuracy = 0.1)), 
+            hjust = -0.2, size = 3) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.85)) +
+  coord_flip() +
+  labs(
+    x = NULL,
+    y = "Porcentaje de contratos a Jornada Parcial",
+    title = "Precariedad Estructural por Rama",
+    subtitle = "Promedio acumulado (2018-2023)"
+  ) +
+  theme_minimal()
+```
+
+Los datos revelan una brecha estructural severa. Ramas como Educación (65,8%) y Artes y Humanidades (56,7%) presentan tasas de parcialidad hasta doce veces superiores a las observadas en sectores técnicos como las TIC (5,5%) o la Ingeniería (10,4%). Esta disparidad sugiere que el riesgo de precariedad no es sistémico uniforme, sino que está fuertemente concentrado en sectores específicos vinculados tradicionalmente al sector público o servicios, mientras que las ramas STEM (Science, Technology, Engineering and Mathematics) actúan como refugios de estabilidad laboral.
+
+En segundo lugar, y fundamental para este estudio, la **Figura 2** muestra la evolución temporal año a año. Este enfoque longitudinal permite discernir si la estabilidad observada en el promedio global (Tabla 1) es real o si esconde fluctuaciones anuales derivadas del shock pandémico inmediato y su posterior recuperación.
+
+```{r}
+#| label: grafico-temporal
+#| fig-cap: "Evolución longitudinal de la precariedad laboral (2018-2023)"
+#| echo: false
+
+datos_plot |> 
+  group_by(anio, periodo_covid) |> 
+  summarise(
+    tasa_precariedad = mean(CalidadContrato, na.rm = TRUE), 
+    .groups = "drop"
+  ) |> 
+  ggplot(aes(x = anio, y = tasa_precariedad, group = 1)) +
+  # Línea de tendencia
+  geom_line(color = "#34495E", linewidth = 1) +
+  # Puntos diferenciados por periodo
+  geom_point(aes(color = periodo_covid), size = 4) +
+  # Línea vertical marcando el inicio del cambio metodológico
+  geom_vline(xintercept = 1.5, linetype = "dashed", color = "#E74C3C") +
+  annotate("text", x = 1.6, y = 0.38, label = "Inicio COVID", 
+           hjust = 0, size = 3, color = "#E74C3C", fontface = "bold") +
+  # Escalas y colores
+  scale_y_continuous(labels = scales::percent, limits = c(0.30, 0.40)) + # Zoom en la zona de interés
+  scale_color_manual(values = c("Pre-COVID" = "#27AE60", "Post-COVID" = "#C0392B")) +
+  labs(
+    x = "Cohorte Académica",
+    y = "Tasa de Jornada Parcial",
+    color = "Periodo",
+    title = "Evolución Temporal de la Calidad del Empleo"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+Contrariamente a la hipótesis de un shock negativo masivo, la serie temporal muestra una notable estabilidad agregada. La tasa de jornada parcial fluctúa en una banda estrecha en torno al 36%. Si bien se aprecia un ligero repunte en la cohorte 2020-2021 (36,5%), coincidiendo con el periodo más agudo de restricciones, la tendencia revierte rápidamente hacia los niveles basales en 2022-2023. Esto confirma que, en términos agregados, el mercado laboral andaluz no experimentó una degradación estructural permanente de la calidad del empleo tras la pandemia.
+
+### Análisis Descriptivo Estratificado por Rama de Conocimiento
+
+#### Justificación del Desglose
+Para aislar el efecto del cambio metodológico (COVID-19) de los shocks de demanda sectoriales, es imperativo desagregar el análisis por la variable `GRUPO`. El mercado laboral presenta una fuerte heterogeneidad estructural; agregar todas las ramas podría enmascarar tendencias divergentes (Sesgo de Agregación).
+
+Mientras que sectores como Salud o TIC responden a dinámicas de alta demanda inelástica, otros como Artes y Humanidades o Servicios son más sensibles al ciclo económico y a las restricciones sanitarias. Este desglose permite identificar si el deterioro en la calidad de la inserción (medido como la proporción de Jornada Completa) es sistémico o específico de ciertas disciplinas.
+
+#### Evolución de la Calidad del Empleo (Jornada Completa)
+El siguiente análisis visual examina la prevalencia de la contratación a Jornada Completa (`TJORNADAA1T3 = 1`) a lo largo de las cohortes, segmentada por las 10 ramas de enseñanza. Se excluyen del cálculo los registros con valores "No consta" o "NA" para garantizar la precisión de la tasa.
+
+```{r}
+#| label: fig-evolucion-ramas
+#| fig-cap: "Evolución de la Tasa de Jornada Completa por Rama de Enseñanza (2018-2023)"
+#| fig-height: 8
+#| fig-width: 10
+#| echo: false
+#| warning: false
+
+# Preparación de datos agregados por Rama y Año
+# IMPORTANTE: Filtramos TJORNADAA1T3 == 3 (No consta) y NAs para calcular la tasa real sobre válidos.
+
+datos_tendencia_rama <- datos_plot |> 
+  filter(!is.na(TJORNADAA1T3), TJORNADAA1T3 != 3, TJORNADAA1T3 != 99) |> 
+  group_by(anio, rama_enseny, periodo_covid) |> 
+  summarise(
+    # Calculamos proporción de 1 (Jornada Completa)
+    tasa_jornada_completa = mean(TJORNADAA1T3 == 1, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+# Visualización de Facetas (Small Multiples)
+ggplot(datos_tendencia_rama, aes(x = anio, y = tasa_jornada_completa, group = 1)) +
+  
+  # Áreas de referencia (opcional: sombrear zona COVID si se desea, aquí usamos línea vertical)
+  geom_vline(xintercept = 1.5, linetype = "dashed", color = "gray50", alpha = 0.8) +
+  
+  # Línea de tendencia y Puntos
+  geom_line(aes(color = tasa_jornada_completa), linewidth = 1) +
+  geom_point(aes(color = tasa_jornada_completa), size = 2) +
+  
+  # Facetado por Rama
+  facet_wrap(~rama_enseny, ncol = 3) + # 3 columnas para legibilidad
+  
+  # Escalas y Formato
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+  scale_color_gradient(low = "#E74C3C", high = "#27AE60", guide = "none") + # Semáforo visual (Rojo=Bajo, Verde=Alto)
+  
+  labs(
+    x = NULL,
+    y = "% Jornada Completa",
+    title = "Calidad de la Inserción: Heterogeneidad por Ramas",
+    subtitle = "La línea vertical indica el inicio de cohortes afectadas por COVID-19",
+    caption = "Fuente: Elaboración propia. Se excluyen valores 'No consta'."
+  ) +
+  
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7), # Rotar años para que quepan
+    strip.text = element_text(face = "bold", size = 10), # Títulos de facetas más claros
+    panel.grid.minor = element_blank()
+  )
+```
+
+**Interpretación de la Dinámica por Ramas**
+
+La **Figura 3** desglosa la evolución de la calidad del empleo (tasa de Jornada Completa) mediante un análisis de facetas (*small multiples*). Los patrones observados confirman una fuerte **heterogeneidad estructural** que domina sobre los efectos coyunturales de la pandemia:
+
+1.  **Persistencia de la Precariedad en Humanidades y Educación:** Las ramas de *Educación* y *Artes y Humanidades* muestran tasas de jornada completa consistentemente bajas (30-45%). La pandemia no generó un punto de inflexión; la precariedad en estos sectores es un rasgo sistémico que precede y sucede a la crisis sanitaria.
+
+2.  **Resiliencia de los Sectores STEM:** Las ramas de *TIC* e *Ingeniería* actúan como refugios laborales, con tasas de inserción de calidad superiores al 85-90%. La estabilidad es casi absoluta, sugiriendo que la demanda de perfiles técnicos fue inmune a las disrupciones pedagógicas o del mercado.
+
+3.  **Volatilidad en Servicios:** Únicamente la rama de *Servicios* muestra una fluctuación compatible con un "shock COVID", con una caída clara en la cohorte 2019-2020 (~40%) y una recuperación posterior incompleta.
+
+**Síntesis Descriptiva:** La línea vertical que marca el inicio del periodo COVID no coincide con rupturas estructurales en la mayoría de las ramas. Las variaciones interanuales son marginales comparadas con la brecha de hasta 70 puntos porcentuales entre ramas (ej. TIC vs. Educación). Esto evidencia que el determinante principal de la calidad del empleo es la elección de estudios, relegando el "efecto cohorte/COVID" a un segundo plano en el análisis visual.
+
+
+## Síntesis: De la Estabilidad Agregada a la Necesidad del Control Multivariante
+
+El recorrido descriptivo realizado hasta este punto arroja una evidencia contraintuitiva respecto a la hipótesis de partida ($H_1$). A pesar de las disrupciones pedagógicas y el cierre de prácticas presenciales, las series temporales no muestran un colapso estructural en la calidad del empleo a nivel agregado, manteniéndose la tasa de precariedad en torno al 36% tanto antes como después de la pandemia.
+
+Sin embargo, concluir que el impacto fue nulo sería prematuro y estadísticamente arriesgado debido a dos factores detectados en la caracterización de la muestra:
+
+1.  **Significatividad Estadística vs. Estabilidad Agregada:** Si bien la tasa de éxito laboral es estable, la **Tabla 1** reveló diferencias significativas ($p < 0.001$) en la composición de los egresados. El perfil del estudiante "post-COVID" no es idéntico al "pre-COVID": hubo un ligero aumento en la proporción de egresados de ramas con alta empleabilidad (como Ciencias y Salud) y un descenso en ramas más precarias (como Educación).
+2.  **Posible Efecto de Enmascaramiento (Efecto Composición):** Podríamos estar ante un escenario de *Paradoja de Simpson*. Si la composición de la muestra mejoró estructuralmente (más ingenieros y sanitarios), la tasa global de inserción debería haber aumentado. El hecho de que se mantuviera estática sugiere la existencia de fuerzas contrapuestas:
+    * Un **Efecto Composición Positivo** (más graduados en carreras de alta demanda).
+    * Un posible **Efecto Tratamiento Negativo** (penalización por formación COVID) que ha sido "maquillado" por el primero.
+
+**Justificación del Modelo Inferencial:**
+Para validar si existe una penalización real asociada a la generación COVID, es imperativo trascender los promedios simples. El análisis inferencial que sigue tiene como objetivo "congelar" matemáticamente estas variables de confusión. Solo mediante una regresión logística que controle *ceteris paribus* por rama de enseñanza, sexo y rendimiento, podremos aislar el **efecto neto** de la pandemia y determinar si, a igualdad de condiciones, un egresado post-COVID enfrenta mayores barreras de entrada al mercado laboral de calidad.
 
 \newpage
 
