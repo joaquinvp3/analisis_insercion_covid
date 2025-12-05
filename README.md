@@ -1,4 +1,4 @@
-# 📘 Impacto del Cambio Metodológico Post-COVID en la Inserción Laboral Universitaria
+# 📘 Impacto de la Adaptación Pedagógica COVID-19 en la Inserción Laboral de los Graduados Universitarios Andaluces
 
 Este repositorio contiene el código fuente, la metodología de limpieza de datos (ETL) y el análisis estadístico reproducible del proyecto de investigación sobre la calidad de la inserción laboral de los egresados en Andalucía tras la pandemia.
 
