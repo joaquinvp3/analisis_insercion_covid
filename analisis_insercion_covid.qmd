@@ -2,6 +2,7 @@
 title: "Impacto del Cambio Metodológico Post-COVID en la Inserción Laboral"
 author: "Carlos Pérez, Daniel Limón, Joaquín Vidal"
 date: last-modified
+lang: es
 format: 
   pdf:
     toc: false               # Índice de contenidos
@@ -20,16 +21,19 @@ execute:
 editor: visual
 ---
 
-\newpage
 \tableofcontents
 \newpage
 
 # Resumen
 *(Pendiente de redacción final)* Este estudio analiza la inserción laboral de XX,XXX egresados de universidades andaluzas, comparando la cohorte pre-pandemia (2018-2019) con las cohortes afectadas por la adaptación metodológica COVID-19.
 
+\newpage
+
 # Introducción
 - Contexto: Breve descripción del cambio metodológico en la universidad andaluza durante la pandemia.
 - Hipótesis: El cambio forzoso a la docencia online/híbrida ha impactado negativamente en la calidad de la inserción laboral (mayor precariedad) en las cohortes afectadas.
+
+\newpage
 
 # Metodología: Construcción de la Base de Datos
 
@@ -75,7 +79,7 @@ read_csv_auto <- function(path) {
   df
 }
 
-# --- Unir data.frames con distinto set de columnas (rellena faltantes con NA) ---
+# Unimos los data.frames con distinto set de columnas, rellenando faltantes con NA)
 rbind_union <- function(dflist) {
   all_names <- unique(unlist(lapply(dflist, names)))
   aligned <- lapply(dflist, function(x) {
@@ -103,11 +107,11 @@ Sobre el conjunto consolidado, se aplicó un filtrado para restringir el anális
 #| echo: true
 #| results: 'hide'
 
-# --- Selección de columnas deseadas ---
-# nombres base tal cual vienen en los microdatos
-base_keep <- intersect(c("CURSO","TIPOESTUDIO","AMBITO","RENDIMIENTO"), names(datos))
+# Seleccionamos las columnas que nos interesan.
+base_keep <- intersect(c("CURSO","TIPOESTUDIO","AMBITO","RENDIMIENTO"),
+names(datos))
 
-# patrones de columnas adicionales (insensible a mayúsculas/minúsculas)
+# Normalizamos nombres de las columnas
 nm <- names(datos)
 keep_extra <- nm[
   grepl("^ACTIVIDAD",  nm, ignore.case = TRUE) |
@@ -119,9 +123,11 @@ keep_extra <- nm[
 cols_to_keep <- unique(c(base_keep, keep_extra))
 tabla <- datos[, cols_to_keep, drop = FALSE]
 
-# --- Renombrar CURSO -> anio, TIPOESTUDIO -> tipo_estudio (si existen) ---
-if ("CURSO" %in% names(tabla))       names(tabla)[names(tabla) == "CURSO"]       <- "anio"
-if ("TIPOESTUDIO" %in% names(tabla)) names(tabla)[names(tabla) == "TIPOESTUDIO"] <- "tipo_estudio"
+# Renombramos CURSO -> anio, TIPOESTUDIO -> tipo_estudio
+if ("CURSO" %in% names(tabla))
+  names(tabla)[names(tabla) == "CURSO"] <- "anio"
+if ("TIPOESTUDIO" %in% names(tabla))
+  names(tabla)[names(tabla) == "TIPOESTUDIO"] <- "tipo_estudio"
 
 datosdef=tabla[tabla$tipo_estudio=="1",]
 ```
@@ -137,9 +143,12 @@ Se implementó una estrategia de limpieza estricta. Los códigos administrativos
 #| results: 'hide'
 
 # Imputamos los NA a los 99
-variables_objetivo_a_modificar <- c("GRUPOCOTA1T3","GRUPOCOTA2T3","GRUPOCOTA3T3","GRUPOCOTA4T3",
-                                    "TCONTRATOA1T3","TCONTRATOA2T3","TCONTRATOA3T3","TCONTRATOA4T3",
-                                    "TJORNADAA1T3","TJORNADAA2T3","TJORNADAA3T3","TJORNADAA4T3")
+variables_objetivo_a_modificar <- c("GRUPOCOTA1T3","GRUPOCOTA2T3",
+                                    "GRUPOCOTA3T3","GRUPOCOTA4T3",
+                                    "TCONTRATOA1T3","TCONTRATOA2T3",
+                                    "TCONTRATOA3T3","TCONTRATOA4T3",
+                                    "TJORNADAA1T3","TJORNADAA2T3",
+                                    "TJORNADAA3T3","TJORNADAA4T3")
 for (col in variables_objetivo_a_modificar) {
   datosdef[[col]][datosdef[[col]] == 99] <- NA
 }
@@ -179,7 +188,7 @@ datosdef$AMBITO <- NULL
 # 2) Filtrar filas con claves completas: anio, RENDIMIENTO, GRUPO
 datosdef_ok <- datosdef[!is.na(datosdef$anio) &
                         !is.na(datosdef$RENDIMIENTO) &
-                        !is.na(datosdef$GRUPO), , drop = FALSE]
+                        !is.na(datosdef$GRUPO), ,drop = FALSE]
 
 # 3) Construir dataset de análisis solo con las variables relevantes
 vars_analisis <- c("anio", "RENDIMIENTO", "GRUPO", "TJORNADAA1T3")
@@ -188,7 +197,8 @@ vars_analisis <- vars_analisis[vars_analisis %in% names(datosdef_ok)]
 datos_analisis <- datosdef_ok[, vars_analisis, drop = FALSE]
 
 # 4) Eliminar casos sin información de jornada
-datos_analisis <- datos_analisis[!is.na(datos_analisis$TJORNADAA1T3), , drop = FALSE]
+datos_analisis <- datos_analisis[!is.na(datos_analisis$TJORNADAA1T3), ,
+drop = FALSE]
 
 # 5) Crear CalidadContrato SOLO a partir de TJORNADAA1T3
 tmp <- datos_analisis$TJORNADAA1T3
@@ -224,6 +234,8 @@ library(ggplot2)
 glimpse(datos_analisis)
 ```
 
+\newpage
+
 # Resultados Descriptivos
 
 Objetivo: Validar que los grupos son comparables y observar tendencias "a simple vista"
@@ -237,6 +249,8 @@ Objetivo: Validar que los grupos son comparables y observar tendencias "a simple
 - Gráfico de barras: Tasa de Precariedad (Jornada Parcial) por Rama de Enseñanza.
 
 - Evolución temporal: Línea de tendencia de la precariedad a lo largo de los 5 años (para ver si hubo un "shock" en 2020).
+
+\newpage
 
 # Análisis Inferencial
 
@@ -253,6 +267,8 @@ Objetivo: Aislar el efecto COVID de otras variables confusoras
 - Presentación de Odds Ratios (OR) e intervalos de confianza.
 
 - Forest Plot: Visualización de los coeficientes para ver qué ramas protegen más contra la precariedad.
+
+\newpage
 
 # Discusión y Conclusiones
 
