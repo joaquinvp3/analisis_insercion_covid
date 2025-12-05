@@ -52,6 +52,7 @@ El proceso de limpieza y filtrado siguió las siguientes reglas de negocio estri
 3.  **Definición de Variables Derivadas:**
     * **Rama de Enseñanza (GRUPO):** Se reclasificó la variable `AMBITO` original (códigos de 4 dígitos) en 10 grandes grupos funcionales.
     * **Calidad de la Inserción:** Se generó una variable binaria `CalidadContrato` basada en la jornada laboral al primer año (`TJORNADAA1T3`), donde la jornada parcial se considera un indicador de precariedad (1) frente a la jornada completa (0).
+    * *Justificación:* Esta decisión se fundamenta en la literatura sobre subempleo por insuficiencia de horas (labor slack). En el contexto del mercado laboral juvenil español, la parcialidad es predominantemente involuntaria y conlleva una penalización salarial directa, limitando la independencia económica del egresado.
 
 ```{r}
 #| label: ingesta-datos
@@ -209,12 +210,12 @@ if (is.character(tmp)) {
   tmp_num <- suppressWarnings(as.integer(tmp))
 }
 
-# Aquí asumimos (ajústalo si es al revés):
+# Aquí asumimos:
 #   CalidadContrato = 1 -> contrato de mala calidad si TJORNADAA1T3 == 2
 #   CalidadContrato = 0 -> contrato de buena calidad si TJORNADAA1T3 != 2
 datos_analisis$CalidadContrato <- ifelse(tmp_num == 2L, 1L, 0L)
 
-# 6) (Opcional) dejar solo las columnas finales
+# 6) Dejamos solo las columnas finales
 datos_analisis <- datos_analisis[, c("anio", "RENDIMIENTO", "GRUPO",
                                      "TJORNADAA1T3", "CalidadContrato"),
                                  drop = FALSE]
@@ -228,11 +229,6 @@ datos_analisis$anio <- factor(datos_analisis$anio,
 datos_analisis$RENDIMIENTO <- factor(datos_analisis$RENDIMIENTO,
                                      levels = c("Q1","Q2","Q3","Q4"),
                                      ordered = TRUE)
-
-library(dplyr)
-library(ggplot2)
-# Verificación final
-glimpse(datos_analisis)
 ```
 
 \newpage
@@ -249,8 +245,8 @@ Antes de proceder al modelado econométrico, es fundamental caracterizar la mues
 #| message: false
 
 library(tidyverse)
-library(gtsummary)
-library(gt)
+library(dplyr)
+library(ggplot2)
 
 # CREACIÓN DE ETIQUETAS Y VARIABLES DE INTERVENCIÓN
 # Transformamos los códigos numéricos en factores legibles para tablas y gráficos
