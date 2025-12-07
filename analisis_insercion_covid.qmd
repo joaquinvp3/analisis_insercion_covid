@@ -18,7 +18,6 @@ format:
 execute:
   warning: false
   message: false
-editor: visual
 ---
 
 \tableofcontents
@@ -494,6 +493,288 @@ Para validar si existe una penalización real asociada a la generación COVID, e
 # Análisis Inferencial
 
 Objetivo: Aislar el efecto COVID de otras variables confusoras
+
+Variable Intervención y modelo:
+
+```{r}
+#| label: creacion-intervencion-y-ajuste
+
+#| echo: true
+
+#| results: 'show'
+
+# CARGA DE LIBRERÍAS NECESARIAS
+
+library(dplyr)
+
+library(ggplot2)
+
+library(gtsummary)
+
+library(broom)
+
+# 1. CREACIÓN DE LA VARIABLE DE INTERVENCIÓN (Post-COVID)
+
+# La variable de intervención es el predictor clave para testar el efecto neto.
+
+# Definición: Pre-COVID (2018-2019) vs. Post-COVID (2019-2020 en adelante)
+
+datos_analisis <- datos_analisis %>%
+
+  mutate(
+
+    # Crear la variable binaria
+
+    Post_COVID = case_when(
+
+      anio == "2018-2019" ~ "Pre-COVID (Referencia)",
+
+      anio %in% c("2019-2020", "2020-2021", "2021-2022", "2022-2023") ~ "Post-COVID",
+
+      TRUE ~ NA_character_
+
+    ),
+
+    # Asegurar que sea factor y la categoría de referencia sea Pre-COVID
+
+    Post_COVID = factor(Post_COVID, 
+
+                        levels = c("Pre-COVID (Referencia)", "Post-COVID"))
+
+  ) %>%
+
+  # Asegurar que GRUPO y RENDIMIENTO sean factores para el modelo
+
+  mutate(
+
+    GRUPO = factor(GRUPO),
+
+    RENDIMIENTO = factor(RENDIMIENTO)
+
+  ) %>%
+
+  # Eliminar NAs si quedan, aunque ya se hizo previamente
+
+  filter(!is.na(Post_COVID)) 
+
+# 2. ESPECIFICACIÓN Y AJUSTE DEL MODELO LOGÍSTICO
+
+# VD: CalidadContrato (Prob. de Precariedad, donde 1 es Precariedad)
+
+# VIs: Post_COVID (Foco), GRUPO (Control Obligatorio), RENDIMIENTO (Control)
+
+modelo_logistico <- glm(
+
+  CalidadContrato ~ Post_COVID + GRUPO + RENDIMIENTO,
+
+  data = datos_analisis,
+
+  family = binomial(link = "logit")
+
+)
+
+# 3. PRESENTACIÓN DE RESULTADOS CON gtsummary (Tabla Académica)
+
+tabla_modelo <- modelo_logistico %>%
+
+  tbl_regression(
+
+    exponentiate = TRUE, # Mostrar Odds Ratios (OR) en lugar de log-odds
+
+    label = list(
+
+      Post_COVID ~ "Periodo de Intervención",
+
+      GRUPO ~ "Rama de Conocimiento",
+
+      RENDIMIENTO ~ "Rendimiento Académico"
+
+    ),
+
+    pvalue_fun = ~style_pvalue(.x, digits = 3) # Formato de p-valor
+
+  ) %>%
+
+  # Añadir el N del modelo y la bondad de ajuste
+
+  add_n() %>%
+
+  add_glance_source_note(label = list(
+
+    N = "N (Casos completos)",
+
+    AIC = "Criterio de Información de Akaike"
+
+  )) %>%
+
+  # Añadir el nombre del modelo
+
+  modify_caption("**Tabla 1. Resultados de la Regresión Logística (Odds Ratios)**")
+
+# Imprimir la tabla
+
+tabla_modelo
+
+```
+
+Forest Plot:
+
+```{r}
+#| label: forest-plot-odds-ratios
+
+#| echo: true
+
+#| fig-height: 8 # Altura ajustada para acomodar todos los coeficientes
+
+#| fig-width: 9
+
+library(dplyr)
+
+library(ggplot2)
+
+library(broom)
+
+# 1. EXTRACCIÓN Y TRANSFORMACIÓN DE COEFICIENTES (broom)
+
+# Usamos tidy para extraer coeficientes, transformamos a OR e IC
+
+datos_forest <- tidy(modelo_logistico, exponentiate = TRUE, conf.int = TRUE) %>%
+
+  # Limpieza de nombres de términos para el gráfico
+
+  mutate(
+
+    # Simplificar el nombre de la categoría Post-COVID
+
+    term = case_match(
+
+      term,
+
+      "Post_COVIDPost-COVID" ~ "Post-COVID vs Pre-COVID",
+
+      .default = term
+
+    ),
+
+    # Etiquetar GRUPO y RENDIMIENTO para la visualización
+
+    TermLabel = case_when(
+
+      grepl("^GRUPO", term) ~ paste0("Rama ", sub("GRUPO", "", term)),
+
+      grepl("^RENDIMIENTO", term) ~ paste0("Rendimiento ", sub("RENDIMIENTO", "", term)),
+
+      TRUE ~ term
+
+    ),
+
+    # Reordenar las categorías para un plot limpio: COVID, Rendimiento, Ramas
+
+    Categoria = case_when(
+
+      term == "Post-COVID vs Pre-COVID" ~ "A. Intervención Temporal (Foco)",
+
+      grepl("^Rendimiento", TermLabel) ~ "B. Rendimiento Académico",
+
+      TRUE ~ "C. Ramas de Conocimiento"
+
+    )
+
+  ) %>%
+
+  # Excluir el intercepto (no interpretable) y ordenar por Categoría
+
+  filter(term != "(Intercept)") %>%
+
+  arrange(Categoria, estimate)
+
+# 2. GENERACIÓN DEL FOREST PLOT (ggplot2 minimalista)
+
+forest_plot <- datos_forest %>%
+
+  ggplot(aes(x = estimate, y = reorder(TermLabel, estimate))) +
+
+  
+
+  # Añadir la línea de referencia (Odds Ratio = 1)
+
+  geom_vline(xintercept = 1, linetype = "dashed", color = "gray50", linewidth = 0.8) +
+
+  
+
+  # Dibujar los Intervalos de Confianza (IC 95%)
+
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2, 
+
+                 color = "gray30") +
+
+  
+
+  # Dibujar los Odds Ratios (puntos)
+
+  geom_point(aes(color = Categoria), size = 3) +
+
+  
+
+  # Estilo y etiquetas
+
+  labs(
+
+    title = "Odds Ratios de Precariedad (Jornada Parcial) por Periodo, Rama y Rendimiento",
+
+    subtitle = "Modelo Logístico ajustado por variables confusoras. (Referencia: Pre-COVID, Intercepto de GRUPO y Q1 de Rendimiento)",
+
+    x = "Odds Ratio (OR) — Mayor Precariedad ⟶",
+
+    y = ""
+
+  ) +
+
+  
+
+  # Separar en facetas (opcional, pero ayuda a la lectura)
+
+  facet_grid(Categoria ~ ., scales = "free_y", space = "free_y") +
+
+  
+
+  # Estética (Minimalista y académica)
+
+  theme_bw() +
+
+  theme(
+
+    legend.position = "none",
+
+    axis.text.y = element_text(face = "bold"),
+
+    plot.title = element_text(face = "bold"),
+
+    strip.text.y = element_text(face = "bold")
+
+  ) +
+
+  
+
+  # Escala logarítmica para ORs (mejora la simetría visual)
+
+  scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4)) +
+
+  
+
+  # Colores (ajustables)
+
+  scale_color_manual(values = c("A. Intervención Temporal (Foco)" = "#B22222", 
+
+                                "B. Rendimiento Académico" = "#006400", 
+
+                                "C. Ramas de Conocimiento" = "#1E90FF"))
+
+# Imprimir el gráfico
+
+forest_plot
+```
+
 
 ## Especificación del Modelo
 - Regresión Logística Binaria (glm).
