@@ -616,6 +616,27 @@ tabla_modelo <- modelo_logistico %>%
 tabla_modelo
 
 ```
+## Resultados del Modelo Logístico
+
+La Tabla 1 presenta los efectos estimados por la regresión logística para la probabilidad de insertarse en un empleo precario (jornada parcial) durante el primer año. El foco principal del análisis es evaluar si el periodo Post-COVID implica un riesgo diferencial de precariedad una vez controladas variables estructurales clave como la rama de conocimiento y el rendimiento académico.
+
+Efecto del Periodo Post-COVID
+
+El Odds Ratio asociado al periodo Post-COVID es 1.02 (IC95%: 0.97–1.07; p = 0.458), lo que indica que, a igualdad de rama y rendimiento, no existe un incremento estadísticamente significativo en la probabilidad de precariedad para los egresados formados durante o después del COVID-19.
+
+Este resultado es coherente con la estabilidad observada en los descriptivos agregados y sugiere que el impacto pedagógico de la pandemia no generó un deterioro sistemático en la calidad del empleo, una vez aislados los efectos de composición entre cohortes. En términos prácticos, un egresado post-COVID presenta prácticamente el mismo riesgo de precariedad que uno pre-COVID, tras ajustar por características estructuralmente relevantes.
+
+Brechas Estructurales entre Ramas de Conocimiento
+
+Los coeficientes de las ramas revelan un patrón extremadamente marcado. Todas las ramas presentan OR muy inferiores a 1 respecto a la categoría de referencia (Rama 1), con valores que oscilan entre 0.68 (Rama 2) y 0.03 (Rama 6), todos ellos con p < 0.001. Estas diferencias representan variaciones de hasta treinta veces en el riesgo de precariedad, confirmando que la rama de estudios es el determinante más fuerte y persistente de la calidad de la inserción laboral.
+
+Este hallazgo replica fielmente la heterogeneidad identificada en los análisis descriptivos: existen ramas estructuralmente vulnerables con elevada exposición a la jornada parcial, y ramas (especialmente STEM y ciertas áreas técnicas) donde la probabilidad de precariedad es ínfima. En consecuencia, las diferencias disciplinares eclipsan completamente el efecto del periodo COVID.
+
+Efecto del Rendimiento Académico
+
+El rendimiento académico también muestra un gradiente claro. Los niveles inferiores (Q, L, C) presentan OR entre 0.91 y 0.96, con significación estadística (p < 0.05). Aunque el efecto es menos intenso que el de la rama, estos valores muestran que peores niveles de rendimiento se asocian a un incremento moderado de la probabilidad de precariedad.
+
+La magnitud de los efectos indica que el desempeño académico actúa como un factor relevante, pero secundario respecto a la rama de conocimiento.
 
 Forest Plot:
 
@@ -774,7 +795,25 @@ forest_plot <- datos_forest %>%
 
 forest_plot
 ```
+Interpretación General del Forest Plot
 
+El Forest Plot visualiza estos resultados de forma sintética:
+
+1.  El efecto del COVID aparece centrado alrededor de OR = 1, con un intervalo que cruza ampliamente la línea de no-efecto. Esto confirma su irrelevancia estadística en el contexto multivariante.
+
+2.  Los efectos del rendimiento se agrupan cerca de OR = 1 pero con desplazamientos suficientes para indicar un gradiente de riesgo real, aunque limitado.
+
+3.  Las ramas, en contraste, se encuentran muy por debajo de OR = 1, ocupando prácticamente toda la parte izquierda de la escala. Esto evidencia que el nivel de precariedad es un fenómeno eminentemente estructural, asociado a diferencias entre disciplinas y no al periodo temporal o a la coyuntura COVID.
+
+##Conclusión Inferencial
+
+El análisis inferencial confirma que la estabilidad agregada observada en las tasas de precariedad no se debe a ausencia de cambios, sino a la coexistencia de dos dinámicas contrapuestas:
+
+* Un marcadísimo efecto composición: en el periodo post-COVID aumenta el peso de ramas con baja precariedad estructural.
+
+* Un efecto neto COVID estadísticamente nulo: a igualdad de características, el COVID no empeora la probabilidad de acceder a una jornada completa.
+
+El resultado es consistente con una Paradoja de Simpson: el promedio se mantiene estable no porque nada haya cambiado, sino porque cambió quién se gradúa. Sin embargo, una vez controladas las diferencias disciplinares y de rendimiento, el COVID no introduce penalización adicional alguna en la inserción laboral.
 
 ## Especificación del Modelo
 - Regresión Logística Binaria (glm).
