@@ -53,7 +53,7 @@ El proceso de limpieza y filtrado siguió las siguientes reglas de negocio estri
 
 ```{r}
 #| label: ingesta-datos
-#| echo: true
+#| echo: false
 #| results: 'hide'
 
 files <- c(
@@ -103,7 +103,7 @@ Sobre el conjunto consolidado, se aplicó un filtrado para restringir el anális
 
 ```{r}
 #| label: seleccion-universo
-#| echo: true
+#| echo: false
 #| results: 'hide'
 
 # Seleccionamos las columnas que nos interesan.
@@ -138,7 +138,7 @@ Se implementó una estrategia de limpieza estricta. Los códigos administrativos
 
 ```{r}
 #| label: limpieza-nas
-#| echo: true
+#| echo: false
 #| results: 'hide'
 
 # Imputamos los NA a los 99
@@ -175,7 +175,7 @@ El conjunto final datos_analisis contiene únicamente los registros completos (c
 
 ```{r}
 #| label: construccion-analisis
-#| echo: true
+#| echo: false
 
 # 1) Grupo
 datosdef$GRUPO <- ifelse(datosdef$AMBITO == 9999,
@@ -496,11 +496,7 @@ Variable Intervención y modelo:
 
 ```{r}
 #| label: creacion-intervencion-y-ajuste
-
-#| echo: true
-
-#| results: 'show'
-
+#| echo: false
 # CARGA DE LIBRERÍAS NECESARIAS
 
 library(dplyr)
@@ -614,6 +610,7 @@ tabla_modelo <- modelo_logistico %>%
 tabla_modelo
 
 ```
+
 ## Resultados del Modelo Logístico
 
 La Tabla 1 presenta los efectos estimados por la regresión logística para la probabilidad de insertarse en un empleo precario (jornada parcial) durante el primer año. El foco principal del análisis es evaluar si el periodo Post-COVID implica un riesgo diferencial de precariedad una vez controladas variables estructurales clave como la rama de conocimiento y el rendimiento académico.
@@ -640,11 +637,8 @@ Forest Plot:
 
 ```{r}
 #| label: forest-plot-odds-ratios
-
-#| echo: true
-
+#| echo: false
 #| fig-height: 8 # Altura ajustada para acomodar todos los coeficientes
-
 #| fig-width: 9
 
 library(dplyr)
@@ -803,7 +797,7 @@ El Forest Plot visualiza estos resultados de forma sintética:
 
 3.  Las ramas, en contraste, se encuentran muy por debajo de OR = 1, ocupando prácticamente toda la parte izquierda de la escala. Esto evidencia que el nivel de precariedad es un fenómeno eminentemente estructural, asociado a diferencias entre disciplinas y no al periodo temporal o a la coyuntura COVID.
 
-##Conclusión Inferencial
+## Conclusión Inferencial
 
 El análisis inferencial confirma que la estabilidad agregada observada en las tasas de precariedad no se debe a ausencia de cambios, sino a la coexistencia de dos dinámicas contrapuestas:
 
