@@ -550,150 +550,90 @@ Para validar si existe una penalización real asociada a la generación COVID, e
 
 # Análisis Inferencial
 
-Objetivo: Aislar el efecto COVID de otras variables confusoras
-
-Variable Intervención y modelo:
+Con el fin de aislar el efecto neto de la pandemia de otras variables confusoras y validar la hipótesis de la Paradoja de Simpson, se procedió al ajuste de un modelo multivariante. A continuación se detalla la especificación del modelo y la estimación de los parámetros.
 
 ```{r}
 #| label: creacion-intervencion-y-ajuste
 #| echo: false
+#| message: false
+#| warning: false
+
 # CARGA DE LIBRERÍAS NECESARIAS
-
 library(dplyr)
-
 library(ggplot2)
-
 library(gtsummary)
-
 library(broom)
+library(kableExtra) # Necesaria para fijar la posición
 
 # 1. CREACIÓN DE LA VARIABLE DE INTERVENCIÓN (Post-COVID)
-
-# La variable de intervención es el predictor clave para testar el efecto neto.
-
-# Definición: Pre-COVID (2018-2019) vs. Post-COVID (2019-2020 en adelante)
-
 datos_analisis <- datos_analisis %>%
-
   mutate(
-
-    # Crear la variable binaria
-
     Post_COVID = case_when(
-
       anio == "2018-2019" ~ "Pre-COVID (Referencia)",
-
       anio %in% c("2019-2020", "2020-2021", "2021-2022", "2022-2023") ~ "Post-COVID",
-
       TRUE ~ NA_character_
-
     ),
-
-    # Asegurar que sea factor y la categoría de referencia sea Pre-COVID
-
     Post_COVID = factor(Post_COVID, 
-
-                        levels = c("Pre-COVID (Referencia)", "Post-COVID"))
-
-  ) %>%
-
-  # Asegurar que GRUPO y RENDIMIENTO sean factores para el modelo
-
-  mutate(
-
+                        levels = c("Pre-COVID (Referencia)", "Post-COVID")),
     GRUPO = factor(GRUPO),
-
     RENDIMIENTO = factor(RENDIMIENTO)
-
   ) %>%
-
-  # Eliminar NAs si quedan, aunque ya se hizo previamente
-
   filter(!is.na(Post_COVID)) 
 
 # 2. ESPECIFICACIÓN Y AJUSTE DEL MODELO LOGÍSTICO
-
-# VD: CalidadContrato (Prob. de Precariedad, donde 1 es Precariedad)
-
-# VIs: Post_COVID (Foco), GRUPO (Control Obligatorio), RENDIMIENTO (Control)
-
 modelo_logistico <- glm(
-
   CalidadContrato ~ Post_COVID + GRUPO + RENDIMIENTO,
-
   data = datos_analisis,
-
   family = binomial(link = "logit")
-
 )
 
-# 3. PRESENTACIÓN DE RESULTADOS CON gtsummary (Tabla Académica)
-
+# 3. PRESENTACIÓN DE RESULTADOS (Con fijación de posición)
 tabla_modelo <- modelo_logistico %>%
-
   tbl_regression(
-
-    exponentiate = TRUE, # Mostrar Odds Ratios (OR) en lugar de log-odds
-
+    exponentiate = TRUE, 
     label = list(
-
       Post_COVID ~ "Periodo de Intervención",
-
       GRUPO ~ "Rama de Conocimiento",
-
       RENDIMIENTO ~ "Rendimiento Académico"
-
     ),
-
-    pvalue_fun = ~style_pvalue(.x, digits = 3) # Formato de p-valor
-
+    pvalue_fun = ~style_pvalue(.x, digits = 3)
   ) %>%
-
-  # Añadir el N del modelo y la bondad de ajuste
-
   add_n() %>%
-
   add_glance_source_note(label = list(
-
     N = "N (Casos completos)",
-
     AIC = "Criterio de Información de Akaike"
-
   )) %>%
+  modify_caption("**Resultados de la Regresión Logística (Odds Ratios)**")
 
-  # Añadir el nombre del modelo
-
-  modify_caption("**Tabla 1. Resultados de la Regresión Logística (Odds Ratios)**")
-
-# Imprimir la tabla
-
-tabla_modelo
-
+# Convertimos a kableExtra y forzamos la posición 'hold_position' (H)
+tabla_modelo %>%
+  as_kable_extra(booktabs = TRUE) %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 ## Resultados del Modelo Logístico
 
-La Tabla 1 presenta los efectos estimados por la regresión logística para la probabilidad de insertarse en un empleo precario (jornada parcial) durante el primer año. El foco principal del análisis es evaluar si el periodo Post-COVID implica un riesgo diferencial de precariedad una vez controladas variables estructurales clave como la rama de conocimiento y el rendimiento académico.
+La **Tabla 2** presenta los efectos estimados por la regresión logística para la probabilidad de insertarse en un empleo precario (jornada parcial) durante el primer año. El foco principal del análisis es evaluar si el periodo Post-COVID implica un riesgo diferencial de precariedad una vez controladas variables estructurales clave como la rama de conocimiento y el rendimiento académico.
 
-Efecto del Periodo Post-COVID
+### Efecto del Periodo Post-COVID
 
-El Odds Ratio asociado al periodo Post-COVID es 1.02 (IC95%: 0.97–1.07; p = 0.458), lo que indica que, a igualdad de rama y rendimiento, no existe un incremento estadísticamente significativo en la probabilidad de precariedad para los egresados formados durante o después del COVID-19.
+El *Odds Ratio* asociado al periodo Post-COVID es **1.02 (IC95%: 0.97–1.07; $p = 0.458$)**, lo que indica que, a igualdad de rama y rendimiento, **no existe un incremento estadísticamente significativo** en la probabilidad de precariedad para los egresados formados durante o después del COVID-19.
 
 Este resultado es coherente con la estabilidad observada en los descriptivos agregados y sugiere que el impacto pedagógico de la pandemia no generó un deterioro sistemático en la calidad del empleo, una vez aislados los efectos de composición entre cohortes. En términos prácticos, un egresado post-COVID presenta prácticamente el mismo riesgo de precariedad que uno pre-COVID, tras ajustar por características estructuralmente relevantes.
 
-Brechas Estructurales entre Ramas de Conocimiento
+### Brechas Estructurales entre Ramas de Conocimiento
 
-Los coeficientes de las ramas revelan un patrón extremadamente marcado. Todas las ramas presentan OR muy inferiores a 1 respecto a la categoría de referencia (Rama 1), con valores que oscilan entre 0.68 (Rama 2) y 0.03 (Rama 6), todos ellos con p < 0.001. Estas diferencias representan variaciones de hasta treinta veces en el riesgo de precariedad, confirmando que la rama de estudios es el determinante más fuerte y persistente de la calidad de la inserción laboral.
+Los coeficientes de las ramas revelan un patrón extremadamente marcado. Todas las ramas presentan OR muy inferiores a 1 respecto a la categoría de referencia (Rama 1), con valores que oscilan entre **0.68 (Rama 2) y 0.03 (Rama 6)**, todos ellos con significación estadística ($p < 0.001$). Estas diferencias representan variaciones de hasta treinta veces en el riesgo de precariedad, confirmando que la **rama de estudios** es el determinante más fuerte y persistente de la calidad de la inserción laboral.
 
 Este hallazgo replica fielmente la heterogeneidad identificada en los análisis descriptivos: existen ramas estructuralmente vulnerables con elevada exposición a la jornada parcial, y ramas (especialmente STEM y ciertas áreas técnicas) donde la probabilidad de precariedad es ínfima. En consecuencia, las diferencias disciplinares eclipsan completamente el efecto del periodo COVID.
 
-Efecto del Rendimiento Académico
+### Efecto del Rendimiento Académico
 
-El rendimiento académico también muestra un gradiente claro. Los niveles inferiores (Q, L, C) presentan OR entre 0.91 y 0.96, con significación estadística (p < 0.05). Aunque el efecto es menos intenso que el de la rama, estos valores muestran que peores niveles de rendimiento se asocian a un incremento moderado de la probabilidad de precariedad.
+El rendimiento académico también muestra un gradiente claro. Los niveles inferiores (Q, L, C) presentan OR entre **0.91 y 0.96**, con significación estadística ($p < 0.05$). Aunque el efecto es menos intenso que el de la rama, estos valores muestran que peores niveles de rendimiento se asocian a un incremento moderado de la probabilidad de precariedad.
 
 La magnitud de los efectos indica que el desempeño académico actúa como un factor relevante, pero secundario respecto a la rama de conocimiento.
 
-Forest Plot:
+Para visualizar la magnitud comparada de estos efectos y la predominancia de los factores estructurales sobre los coyunturales, la **Figura 4** presenta el *Forest Plot* de los coeficientes estimados:
 
 ```{r}
 #| label: forest-plot-odds-ratios
@@ -847,40 +787,25 @@ forest_plot <- datos_forest %>%
 
 forest_plot
 ```
-Interpretación General del Forest Plot
 
-El Forest Plot visualiza estos resultados de forma sintética:
+### Interpretación General del Forest Plot
 
-1.  El efecto del COVID aparece centrado alrededor de OR = 1, con un intervalo que cruza ampliamente la línea de no-efecto. Esto confirma su irrelevancia estadística en el contexto multivariante.
+El *Forest Plot* visualiza estos resultados de forma sintética:
 
-2.  Los efectos del rendimiento se agrupan cerca de OR = 1 pero con desplazamientos suficientes para indicar un gradiente de riesgo real, aunque limitado.
-
-3.  Las ramas, en contraste, se encuentran muy por debajo de OR = 1, ocupando prácticamente toda la parte izquierda de la escala. Esto evidencia que el nivel de precariedad es un fenómeno eminentemente estructural, asociado a diferencias entre disciplinas y no al periodo temporal o a la coyuntura COVID.
+1.  **Irrelevancia del Factor Temporal:** El efecto del COVID aparece centrado alrededor de $OR = 1$, con un intervalo que cruza ampliamente la línea de no-efecto. Esto confirma su irrelevancia estadística en el contexto multivariante.
+2.  **Gradiente Académico:** Los efectos del rendimiento se agrupan cerca de $OR = 1$ pero con desplazamientos suficientes para indicar un gradiente de riesgo real, aunque limitado.
+3.  **Determinismo Estructural:** Las ramas, en contraste, se encuentran muy por debajo de $OR = 1$, ocupando prácticamente toda la parte izquierda de la escala. Esto evidencia que el nivel de precariedad es un fenómeno eminentemente estructural, asociado a diferencias entre disciplinas y no al periodo temporal o a la coyuntura COVID.
 
 ## Conclusión Inferencial
 
-El análisis inferencial confirma que la estabilidad agregada observada en las tasas de precariedad no se debe a ausencia de cambios, sino a la coexistencia de dos dinámicas contrapuestas:
+El análisis inferencial confirma que la **estabilidad agregada** observada en las tasas de precariedad no se debe a ausencia de cambios, sino a la coexistencia de dos dinámicas contrapuestas:
 
-* Un marcadísimo efecto composición: en el periodo post-COVID aumenta el peso de ramas con baja precariedad estructural.
+* Un **marcadísimo efecto composición**: en el periodo post-COVID aumenta el peso de ramas con baja precariedad estructural.
+* Un **efecto neto COVID estadísticamente nulo**: a igualdad de características, el COVID no empeora la probabilidad de acceder a una jornada completa.
 
-* Un efecto neto COVID estadísticamente nulo: a igualdad de características, el COVID no empeora la probabilidad de acceder a una jornada completa.
-
-El resultado es consistente con una Paradoja de Simpson: el promedio se mantiene estable no porque nada haya cambiado, sino porque cambió quién se gradúa. Sin embargo, una vez controladas las diferencias disciplinares y de rendimiento, el COVID no introduce penalización adicional alguna en la inserción laboral.
-
-## Especificación del Modelo
-- Regresión Logística Binaria (glm).
-
-- VD: Probabilidad de Precariedad (CalidadContrato == 1).
-
-- VIs: Periodo COVID + Rama + Rendimiento Académico.
-
-## Resultados del Modelo
-- Presentación de Odds Ratios (OR) e intervalos de confianza.
-
-- Forest Plot: Visualización de los coeficientes para ver qué ramas protegen más contra la precariedad.
+El resultado es consistente con una **Paradoja de Simpson**: el promedio se mantiene estable no porque nada haya cambiado, sino porque cambió *quién* se gradúa. Sin embargo, una vez controladas las diferencias disciplinares y de rendimiento, el COVID no introduce penalización adicional alguna en la inserción laboral.
 
 \newpage
-
 
 
 # Discusión y Conclusiones
@@ -912,7 +837,7 @@ La principal limitación de este estudio radica en la naturaleza de los **datos 
 
 A la luz de estas limitaciones, y para incentivar la discusión con el profesor, planteamos las siguientes preguntas de reflexión:
 
-### Preguntas para la Discusión (Plantear al Profesor)
+### Preguntas para la Discusión
 
 1.  **Sobre la Robustez del Sistema y las *Soft Skills***: La estabilidad global sugiere que el sistema universitario andaluz fue **robusto** frente al *shock* pedagógico. ¿Esta robustez es un reflejo de que el currículo formativo y la exigencia evaluativa es lo que realmente valoran los empleadores? O, por el contrario, ¿es un signo de que el **mercado laboral no penaliza la pérdida de *soft skills*** en el corto plazo, sino que se basa exclusivamente en la **etiqueta disciplinar** (Rama de Conocimiento)?
 
