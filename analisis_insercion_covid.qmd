@@ -1,34 +1,94 @@
 ---
-title: "Impacto de la Adaptación Pedagógica COVID-19 en la Inserción Laboral de los Graduados Universitarios Andaluces"
-author: "Carlos Pérez, Daniel Limón, Joaquín Vidal"
-date: last-modified
-lang: es
 format: 
   pdf:
-    toc: false              # Índice de contenidos
-    number-sections: true   # Numeración 1.1, 1.2...
-    colorlinks: true        # Enlaces clicables en color
-    papersize: a4           # Tamaño papel estándar europeo
+    toc: false
+    number-sections: true
+    colorlinks: true
+    lang: es
+    papersize: a4
     geometry:
       - top=25mm
       - left=25mm
       - right=25mm
       - bottom=25mm
-    fig-pos: 'H'            # Intenta forzar que las gráficas salgan donde las pones
+    fig-pos: 'H'
+    include-in-header: 
+      text: |
+        \usepackage{fancyhdr}
+        \pagestyle{fancy}
+        \fancyhf{}
+        \rhead{Inserción Laboral Post-COVID}
+        \lhead{Carlos Pérez, Daniel Limón, Joaquín Vidal}
+        \cfoot{\thepage}
+        \usepackage{graphicx}
 execute:
   warning: false
   message: false
 ---
 
+\begin{titlepage}
+    \centering
+    
+    % --- BLOQUE DE LOGOS (Lado a Lado) ---
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        % Ajusta el nombre del archivo si es necesario
+        \includegraphics[height=3.5cm]{img/logo_us.png} 
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        % Ajusta el nombre del archivo si es necesario (ojo a la extensión jpg/png)
+        \includegraphics[height=3.5cm]{img/logo_complu.png} 
+    \end{minipage}
+    
+    \vspace{2.5cm} % Espacio vertical
+    
+    % --- TÍTULO ---
+    {\Huge \textbf{Impacto de la Adaptación Pedagógica COVID-19 en la Inserción Laboral de los Graduados Universitarios Andaluces} \par}
+    
+    \vspace{2cm}
+    
+    % --- AUTORES ---
+    {\Large \textbf{Carlos Pérez} \\ \small Universidad Complutense de Madrid (SICUE) \par}
+    \vspace{0.5cm}
+    {\Large \textbf{Daniel Limón} \\ \small Universidad de Sevilla \par}
+    \vspace{0.5cm}
+    {\Large \textbf{Joaquín Vidal} \\ \small Universidad de Sevilla \par}
+    
+    \vfill % Empuja la fecha al final de la página
+    
+    % --- FECHA ---
+    {\large \today \par}
+\end{titlepage}
+
+\newpage
+
+# Resumen {-} 
+Este estudio analiza el impacto de la adaptación pedagógica forzosa por la pandemia de COVID-19 en la calidad de la inserción laboral de 58.703 egresados de universidades públicas andaluzas. Utilizando datos administrativos de la cohorte Pre-COVID (2018-2019) y las cohortes Post-COVID (2019-2023), examinamos la probabilidad de experimentar precariedad (definida como jornada parcial). 
+
+El análisis descriptivo agregado inicial mostró una sorprendente estabilidad en las tasas de precariedad (~36%), a pesar de la disrupción educativa. Sin embargo, la posterior Regresión Logística Binaria, controlando rigurosamente por la Rama de Conocimiento (GRUPO) y el Rendimiento Académico, reveló la existencia de una **Paradoja de Simpson**. 
+
+Los resultados indican que la estabilidad agregada se debió a un marcado *efecto composición*: un aumento en la proporción de egresados de ramas con menor precariedad estructural (como Salud y TIC). Una vez aisladas estas diferencias disciplinares, el efecto neto atribuible al periodo Post-COVID sobre la probabilidad de precariedad resultó ser estadísticamente nulo ($OR \approx 1$). 
+
+Concluimos que, a pesar del cambio pedagógico masivo, el impacto de la pandemia no introdujo una penalización adicional en la inserción laboral de los graduados andaluces una vez controlado el tipo de titulación. Este hallazgo subraya la robustez de la calidad del sistema universitario andaluz frente a shocks externos, al tiempo que enfatiza la persistencia de las desigualdades de inserción laboral preexistentes entre ramas.
+
+\newpage
+
 \tableofcontents
 \newpage
 
-# Resumen
-Este estudio analiza el impacto de la adaptación pedagógica forzosa por la pandemia de COVID-19 en la calidad de la inserción laboral de 58.703 egresados de universidades públicas andaluzas2. Utilizando datos administrativos de la cohorte Pre-COVID (2018-2019) y las cohortes Post-COVID (2019-2023), examinamos la probabilidad de experimentar precariedad (definida como jornada parcial)3. El análisis descriptivo agregado inicial mostró una sorprendente estabilidad en las tasas de precariedad (~36%), a pesar de la disrupción educativa. Sin embargo, la posterior Regresión Logística Binaria, controlando rigurosamente por la Rama de Conocimiento (GRUPO) y el Rendimiento Académico, reveló la existencia de una Paradoja de Simpson.Los resultados indican que la estabilidad agregada se debió a un marcado efecto composición—un aumento en la proporción de egresados de ramas con menor precariedad estructural (como Salud y TIC). Una vez aisladas estas diferencias disciplinares, el efecto neto atribuible al periodo Post-COVID sobre la probabilidad de precariedad resultó ser estadísticamente nulo (OR $\approx$ 1).Concluimos que, a pesar del cambio pedagógico masivo, el impacto de la pandemia no introdujo una penalización adicional en la inserción laboral de los graduados andaluces una vez controlado el tipo de titulación. Este hallazgo subraya la robustez de la calidad del sistema universitario andaluz frente a shocks externos, al tiempo que enfatiza la persistencia de las desigualdades de inserción laboral preexistentes entre ramas.
-\newpage
-
 # Introducción
-La irrupción de la pandemia de COVID-19 generó una disrupción sin precedentes en la educación superior a nivel global. El cambio forzoso y repentino a modelos de docencia online e híbrida supuso un desafío metodológico y didáctico para las universidades públicas andaluzas, afectando directamente la formación de las cohortes de graduados entre 2019-2023. La literatura preliminar sugiere que este cambio, al reducir el contacto presencial y las prácticas, podría haber comprometido el desarrollo de habilidades críticas no cognitivas (soft skills), planteando la hipótesis de un impacto negativo en la calidad de la inserción laboral de los egresados. En este contexto, el presente estudio tiene como objetivo determinar si el periodo de intervención Post-COVID ha incrementado la probabilidad de precariedad laboral (definida como empleo a jornada parcial) al primer año de egreso.Inicialmente, el análisis descriptivo agregado mostró un resultado contraintuitivo: una notable estabilidad en la tasa global de precariedad, que se mantuvo fluctuando en un margen estrecho en torno al 36% entre las cohortes Pre- y Post-COVID. Esta estabilidad agregada podría llevar a concluir erróneamente que la pandemia no generó un impacto sistémico en el mercado laboral juvenil andaluz. Sin embargo, la caracterización de la muestra reveló una variación estructural significativa ($p < 0.001$) en la composición de los egresados por Rama de Conocimiento (GRUPO). Se observó un incremento del peso relativo de las titulaciones con históricamente baja precariedad (como Salud y TIC) y un descenso en ramas con precariedad estructural alta (como Educación).Esta coexistencia de estabilidad en la media con cambios en la composición de la muestra sugiere la presencia de una Paradoja de Simpson. El hecho de que la tasa agregada se mantuviera estática, a pesar de que la muestra de egresados mejoró estructuralmente, indica que un posible efecto penalizador neto asociado a la formación COVID-19 podría haber sido enmascarado por un efecto composición positivo. Para resolver esta ambigüedad, se requiere ir más allá de los promedios simples.El objetivo central de esta investigación es aislar el efecto neto de la intervención COVID-19. Para ello, se utiliza un Modelo de Regresión Logística Binaria que controla ceteris paribus por la Rama de Conocimiento (como principal variable estructural) y el Rendimiento Académico del graduado. Nuestros hallazgos del análisis inferencial confirman el escenario de la Paradoja de Simpson y demuestran que, una vez controladas las diferencias disciplinares, el efecto neto del periodo Post-COVID es estadísticamente nulo sobre la probabilidad de precariedad. Esta conclusión subraya la primacía de los determinantes estructurales (la elección de la rama de estudio) sobre los efectos de la coyuntura pedagógica en la inserción laboral.
+
+La irrupción de la pandemia de COVID-19 generó una disrupción sin precedentes en la educación superior a nivel global. El cambio forzoso y repentino a modelos de docencia online e híbrida supuso un desafío metodológico y didáctico para las universidades públicas andaluzas, afectando directamente la formación de las cohortes de graduados entre 2019-2023. 
+
+La literatura preliminar sugiere que este cambio, al reducir el contacto presencial y las prácticas, podría haber comprometido el desarrollo de habilidades críticas no cognitivas (*soft skills*), planteando la hipótesis de un impacto negativo en la calidad de la inserción laboral de los egresados. En este contexto, el presente estudio tiene como objetivo determinar si el periodo de intervención Post-COVID ha incrementado la probabilidad de precariedad laboral (definida como empleo a jornada parcial) al primer año de egreso.
+
+Inicialmente, el análisis descriptivo agregado mostró un resultado contraintuitivo: una notable estabilidad en la tasa global de precariedad, que se mantuvo fluctuando en un margen estrecho en torno al 36% entre las cohortes Pre- y Post-COVID. Esta estabilidad agregada podría llevar a concluir erróneamente que la pandemia no generó un impacto sistémico en el mercado laboral juvenil andaluz. Sin embargo, la caracterización de la muestra reveló una variación estructural significativa ($p < 0.001$) en la composición de los egresados por Rama de Conocimiento (GRUPO). Se observó un incremento del peso relativo de las titulaciones con históricamente baja precariedad (como Salud y TIC) y un descenso en ramas con precariedad estructural alta (como Educación).
+
+Esta coexistencia de estabilidad en la media con cambios en la composición de la muestra sugiere la presencia de una **Paradoja de Simpson**. El hecho de que la tasa agregada se mantuviera estática, a pesar de que la muestra de egresados mejoró estructuralmente, indica que un posible efecto penalizador neto asociado a la formación COVID-19 podría haber sido enmascarado por un efecto composición positivo. Para resolver esta ambigüedad, se requiere ir más allá de los promedios simples.
+
+El objetivo central de esta investigación es aislar el efecto neto de la intervención COVID-19. Para ello, se utiliza un Modelo de Regresión Logística Binaria que controla *ceteris paribus* por la Rama de Conocimiento (como principal variable estructural) y el Rendimiento Académico del graduado. Nuestros hallazgos del análisis inferencial confirman el escenario de la Paradoja de Simpson y demuestran que, una vez controladas las diferencias disciplinares, el efecto neto del periodo Post-COVID es estadísticamente nulo sobre la probabilidad de precariedad. Esta conclusión subraya la primacía de los determinantes estructurales (la elección de la rama de estudio) sobre los efectos de la coyuntura pedagógica en la inserción laboral.
 
 \newpage
 
