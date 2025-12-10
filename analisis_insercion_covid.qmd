@@ -821,13 +821,45 @@ El resultado es consistente con una Paradoja de Simpson: el promedio se mantiene
 
 \newpage
 
+
+
 # Discusión y Conclusiones
 
 ## Interpretación
-¿Se confirma la hipótesis? (Si OR > 1 en periodo COVID, sí afectó).
 
-## Matices por rama
-¿Afectó a todas las carreras por igual o sufrieron más las que requieren presencialidad (ej. Ciencias vs Humanidades)?
+La presente investigación se propuso evaluar el impacto neto de la adaptación metodológica Post-COVID-19 en la calidad de la inserción laboral (precariedad por jornada parcial) de los egresados de Grado. Los resultados permiten una interpretación matizada que desafía la hipótesis inicial de un deterioro generalizado.
+
+El **análisis descriptivo agregado** reveló una sorprendente **estabilidad** en la tasa global de precariedad (~36%), lo que inicialmente podría sugerir un impacto nulo de la pandemia. Sin embargo, el **Modelo de Regresión Logística Binaria** demostró que esta estabilidad se debe a la existencia de una **Paradoja de Simpson**.
+
+El principal hallazgo es que, una vez que el modelo controló rigurosamente por la **Rama de Conocimiento (GRUPO)** y el **Rendimiento Académico**, el *Odds Ratio* (OR) para el factor **Post-COVID vs. Pre-COVID** resultó ser cercano a la unidad (OR $\approx 1$) y **estadísticamente no significativo**.
+
+Este resultado implica que el **efecto neto** de la adaptación pedagógica por la pandemia es **nulo** sobre la probabilidad de precariedad. La estabilidad agregada se explica por un **marcado efecto composición**—un aumento en la proporción de egresados de ramas con menor precariedad estructural (como Salud y TIC) que compensó cualquier posible deterioro subyacente. En conclusión, el factor más robusto en la determinación de la calidad de la inserción laboral es la **elección de la Rama de Conocimiento**, y no la coyuntura pedagógica temporal.
+
+## Matices por rama y la Cuestión de las *Skills*
+
+Si bien el efecto neto del COVID fue nulo, la alta significancia y las amplias diferencias en los OR entre las **Ramas de Conocimiento** (visualizadas en el *Forest Plot*) ilustran las persistentes desigualdades estructurales preexistentes. Las ramas con OR significativamente menores a 1 son aquellas que ofrecen mayor **protección** contra la precariedad, mientras que otras ramas con OR considerablemente mayores continúan enfrentando una vulnerabilidad estructural.
+
+Este patrón nos lleva a plantear la pregunta clave en el debate sobre empleabilidad: **¿Significa que la adaptación *online* no afectó la calidad de la formación, o que el mercado laboral no valora los aspectos que sí fueron afectados?**
+
+Es plausible que la transición Post-COVID haya impactado negativamente en el desarrollo de **habilidades blandas (*soft skills*)** o competencias transferibles (ej. comunicación, liderazgo) que se desarrollan mejor en el entorno presencial. No obstante, si el mercado laboral andaluz no valora o no mide estos aspectos a través de indicadores como la jornada laboral, el efecto negativo del COVID no se materializa en nuestro modelo. Este punto abre una línea de investigación futura crucial.
 
 ## Limitaciones
-Uso de datos administrativos (sin datos de habilidades blandas). Esto ya lo podemos hablar y consideramos si hacemos mención de las soft skills o no.
+
+La principal limitación de este estudio radica en la naturaleza de los **datos administrativos** utilizados:
+
+* **Ausencia de métricas de Competencias:** El *dataset* carece de variables sobre el desarrollo de habilidades blandas o la **calidad de la formación** en sí misma, impidiendo testar directamente la hipótesis del deterioro de *skills*.
+* **Proxy Limitado:** La variable dependiente (`TJORNADAA1T3`) es un *proxy* de la precariedad que solo capta la **cantidad** de trabajo (jornada), pero no la **calidad** (salario, satisfacción o adecuación al puesto).
+
+A la luz de estas limitaciones, y para incentivar la discusión con el profesor, planteamos las siguientes preguntas de reflexión:
+
+### Preguntas para la Discusión (Plantear al Profesor)
+
+1.  **Sobre la Robustez del Sistema y las *Soft Skills***: La estabilidad global sugiere que el sistema universitario andaluz fue **robusto** frente al *shock* pedagógico. ¿Esta robustez es un reflejo de que el currículo formativo y la exigencia evaluativa es lo que realmente valoran los empleadores? O, por el contrario, ¿es un signo de que el **mercado laboral no penaliza la pérdida de *soft skills*** en el corto plazo, sino que se basa exclusivamente en la **etiqueta disciplinar** (Rama de Conocimiento)?
+
+2.  **Sobre la Dirección de la Política Universitaria:** Nuestros resultados confirman que la **Rama de Conocimiento** es el factor más robusto contra la precariedad. Desde una perspectiva de política pública, ¿debería este hallazgo llevar a las universidades a invertir prioritariamente en la **mejora de la inserción laboral de las ramas que muestran mayor vulnerabilidad estructural** (aquellas con OR más altos), en lugar de centrar recursos en mitigar un efecto coyuntural (COVID) que demostró ser irrelevante a nivel de jornada laboral?
+
+
+
+
+
+
